@@ -16,7 +16,7 @@ from ..debug import dbg
 
 class Config(object):
 
-    def __init__(self, name="hopper", app='template', argv=None, command=None):
+    def __init__(self, name="hopper", app='template', argv=None, command=None, unknown=False):
         self._name = name
         self._app = app
         if argv is None:
@@ -25,13 +25,18 @@ class Config(object):
         else:
             self._argv = argv
             self._command = command
+        self._unknown = unknown
 
         self.init_args()
         self.parse_args()
         self.default_config()
         self.init_config()
-        self.save_config()
+        if self.is_console():
+            self.save_config()
         self.post_config()
+
+    def is_console(self):
+        return self._app and len(self._app) > 0
 
     def init_usr_args(self):
         pass
@@ -49,14 +54,19 @@ class Config(object):
                                       help='Config file',
                                       default="config.ini")
         self.args_parser.add_argument('--tag', type=str, help='Tag')
-        self.args_parser.add_argument('--work_dir', type=str, help='Output dir')
-        self.args_parser.add_argument('--inst_dir', type=str, help='Model dir')
-        self.args_parser.add_argument('--add', type=str, help='Addtitional options')
-        self.args_parser.add_argument('-m', type=str, help='Run mode')
-        self.args_parser.add_argument('--trace', action='store_const', const=True, help='Enable tracing')
+
+        if self.is_console():
+            self.args_parser.add_argument('--work_dir', type=str, help='Output dir')
+            self.args_parser.add_argument('--inst_dir', type=str, help='Model dir')
+            self.args_parser.add_argument('--add', type=str, help='Addtitional options')
+            self.args_parser.add_argument('-m', type=str, help='Run mode')
+            self.args_parser.add_argument('--trace', action='store_const', const=True, help='Enable tracing')
 
     def parse_args(self):
-        self._args = self.args_parser.parse_args(self._argv)
+        if self._unknown:
+            self._args, self._unknown_args = self.args_parser.parse_known_args(self._argv)
+        else:
+            self._args = self.args_parser.parse_args(self._argv)
 
     def default_set_config(self, section, key, val):
         self._default_config[section][key] = val
@@ -72,17 +82,19 @@ class Config(object):
         # common configurations
         self._default_config[section]['name'] = self._name
         self._default_config[section]['tag'] = ""
-        self._default_config[section]['work_dir'] = "_work"
-        self._default_config[section]['inst_dir'] = ""
-        self._default_config[section]['add'] = {}
-        self._default_config[section]['m'] = ""
-        self._default_config[section]['trace'] = False
 
-        # debug configurations
-        section = 'debug'
-        self._default_config[section] = {}
-        self._default_config[section]['channel'] = log.DC.ALL
-        self._default_config[section]['level'] = log.DL.DEBUG
+        if self.is_console():
+            self._default_config[section]['work_dir'] = "_work"
+            self._default_config[section]['inst_dir'] = ""
+            self._default_config[section]['add'] = {}
+            self._default_config[section]['m'] = ""
+            self._default_config[section]['trace'] = False
+
+            # debug configurations
+            section = 'debug'
+            self._default_config[section] = {}
+            self._default_config[section]['channel'] = log.DC.ALL
+            self._default_config[section]['level'] = log.DL.DEBUG
 
         self.default_usr_config()
 
@@ -164,25 +176,34 @@ class Config(object):
         # config file
         with open('{}/config.ini'.format(inst_dir), 'w') as configfile:
             self._config.write(configfile)
+
         # log file
-        log.set_log_file('{}/log.txt'.format(inst_dir))
+        if self.is_console():
+            log.set_log_file('{}/log.txt'.format(inst_dir))
 
         self._inst_dir = inst_dir
 
     def post_config(self):
         # Set debug settings
-        dbg.dbg_cfg(level=self._opt.debug.level,
-                    channel=self._opt.debug.channel)
+        if self.is_console():
+            dbg.dbg_cfg(level=self._opt.debug.level,
+                        channel=self._opt.debug.channel)
 
-        if self._opt.args.trace and not dbg.dbg_lvl(log.DL.TRACE):
-            dbg.dbg_cfg(level=log.DL.TRACE)
+            if self._opt.args.trace and not dbg.dbg_lvl(log.DL.TRACE):
+                dbg.dbg_cfg(level=log.DL.TRACE)
 
         # dump important information
         log.trace(log.DC.STD, "{} - {}".format(self._opt.args.name, self._opt.args.tag))
         log.trace(log.DC.STD, "  command [{}], argv {}".format(self._command, self._argv))
-        log.trace(log.DC.STD, "  inst_dir [{}]".format(self._inst_dir))
         log.trace(log.DC.STD, "  opt [{}]".format(self._opt))
+        if self.is_console():
+            log.trace(log.DC.STD, "  inst_dir [{}]".format(self._inst_dir))
 
+    @property
     def opt(self):
         return self._opt;
+
+    @property
+    def command(self):
+        return self._command;
 

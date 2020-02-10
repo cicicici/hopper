@@ -5,6 +5,7 @@ from __future__ import print_function
 import six
 import collections
 import json
+import base64
 
 
 def opt_to_dict(opt):
@@ -12,6 +13,10 @@ def opt_to_dict(opt):
     for k, v in six.iteritems(opt):
         if type(v) is Opt:
             d[k] = opt_to_dict(v)
+        elif type(v) is bytes:
+            b64_b = base64.b64encode(v)
+            b64_v = b64_b.decode('ascii')
+            d[k] = {'_b64_v': b64_v, '_len': len(v)}
         else:
             d[k] = v
     return d
@@ -20,7 +25,12 @@ def dict_to_opt(d):
     opt = Opt()
     for k, v in d.items():
         if type(v) is dict:
-            opt[k] = dict_to_opt(v)
+            if '_b64_v' in v:
+                b64_b = v['_b64_v'].encode('ascii')
+                data_b = base64.b64decode(b64_b)
+                opt[k] = data_b
+            else:
+                opt[k] = dict_to_opt(v)
         else:
             opt[k] = v
     return opt
@@ -80,12 +90,16 @@ class Opt(collections.MutableMapping):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+    # in-place add/mul instead of return a new one like ops above
     def insert(self, key, value, overwrite=False):
         if key is None:
-            return
+            return False
         if overwrite or (key not in self.__dict__):
             self.__dict__[key] = value
+            return True
+        return False
 
+    # counter functions
     def inc(self, key, delta=1):
         if key is None:
             return

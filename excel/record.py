@@ -13,7 +13,7 @@ def make_field(name, column, title, mapped):
     return Opt(name=name, column=column, title=title, mapped=mapped)
 
 def make_cell(name, value, field, style=Opt()):
-    return Opt(name=name, value=value, field=field, style=style)
+    return Opt(name=name, value=value, field=field, style=style, c_style=None)
 
 def make_record(fields, row, first=None):
     rec = Opt()
@@ -38,10 +38,11 @@ def copy_record(r1, r2, fields, value=True, style=True, require_mapped=True):
         if require_mapped and not f.mapped:
             continue
 
-        if value:
-            r2[f.name].value = r1[f.name].value
-        if style:
-            r2[f.name].style = r1[f.name].style
+        if f.name in r1:
+            if value:
+                r2[f.name].value = r1[f.name].value
+            if style:
+                r2[f.name].style = r1[f.name].style
 
 def combine_record(r1, r2, fields, row=0, require_mapped=True):
     rec = make_record(fields, row)

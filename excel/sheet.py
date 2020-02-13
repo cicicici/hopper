@@ -13,7 +13,7 @@ from ..debug import log, dump
 from .record import make_record, parse_fields
 from .style import apply_style
 
-def load_sheet(wb, sheetname, title_field_map, skip_empty=True):
+def load_sheet(wb, sheetname, title_field_map, skip_empty=True, cache_size=100):
     if sheetname not in wb.sheetnames:
         return None
 
@@ -34,6 +34,7 @@ def load_sheet(wb, sheetname, title_field_map, skip_empty=True):
             if c.value is not None:
                 rec.empty = False
             rec[f.name].value = c.value
+            rec[f.name].c_style = copy(c._style)
 
         #print(rec)
         #log.trace(log.DC.STD, "[{}] loc {}, b_shp {}, d_shp_out {}, d_act_sha {}".format(i, rec.a_location.value, rec.b_shp.value, rec.d_shp_out.value, rec.d_act_sha.value))
@@ -45,10 +46,14 @@ def load_sheet(wb, sheetname, title_field_map, skip_empty=True):
 
     log.trace(log.DC.STD, "[{}] rows {}, columns {}, records {}".format(sheetname, ws.max_row, ws.max_column, len(records)))
 
-    return Opt(wb=wb, ws=ws, name=sheetname, fields=fields, fields_map=fields_map, records=records, row=row_cur)
+    cache = Opt(size=cache_size, space=0)
 
-def append_sheet(sheet, rec):
-    sheet.ws.insert_rows(sheet.row, 1)
+    return Opt(wb=wb, ws=ws, name=sheetname, fields=fields, fields_map=fields_map, records=records, row=row_cur, cache=cache)
+
+def append_sheet(sheet, rec, pre_style=True, post_style=True):
+    if sheet.cache.space == 0:
+        sheet.ws.insert_rows(sheet.row, sheet.cache.size)
+        sheet.cache.space = sheet.cache.size
 
     fields = sheet.fields
     for f in fields:
@@ -58,26 +63,34 @@ def append_sheet(sheet, rec):
                 val = "{}/{}/{}".format(val.month, val.day, val.year)
             c = sheet.ws.cell(row=sheet.row, column=f.column)
             c.value = val
-            c._style = copy(sheet.ws.cell(row=sheet.row+1, column=f.column)._style)
 
-            apply_style(c, rec[f.name].style)
+            if pre_style:
+                c._style = copy(sheet.ws.cell(row=sheet.row+sheet.cache.space, column=f.column)._style)
+
+            if post_style:
+                apply_style(c, rec[f.name].style)
 
     sheet.row += 1
+    sheet.cache.space -= 1
 
-def append_found(sheet, sheet_save, found, mark_process=True):
+def append_found(sheet, sheet_save, found, mark_process=True, pre_style=True, post_style=True):
     for f in found:
         r = sheet.records[f]
         if r.processed:
             continue
-        append_sheet(sheet_save, r)
+        append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style)
         if mark_process:
             r.processed = True
 
-def append_not_processed(sheet, sheet_save, first="*** INVALID ***", mark_process=True):
-    append_sheet(sheet_save, make_record(sheet_save.fields, 0, first=first))
+def append_not_processed(sheet, sheet_save, first="*** INVALID ***", mark_process=True, pre_style=True, post_style=True):
+    append_sheet(sheet_save, make_record(sheet_save.fields, 0, first=first), pre_style=pre_style, post_style=post_style)
     for r in sheet.records:
         if not r.processed:
-            append_sheet(sheet_save, r)
+            append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style)
             if mark_process:
                 r.processed = True
+
+def clear_sheet_cache(sheet):
+    if sheet.cache.space > 0:
+        sheet.ws.delete_rows(sheet.row, sheet.cache.space)
 

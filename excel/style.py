@@ -11,7 +11,7 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 class ColorPalette():
     WHITE       = 'FFFFFF'
     BLACK       = '010101'
-    RED         = 'F8CBAE'
+    RED         = 'EA9999'
     DARK_RED    = 'FE0101'
     GREEN       = 'C7E0B4'
     DARK_GREEN  = '00B04F'
@@ -27,6 +27,24 @@ class ColorPalette():
     VIOLET      = 'EE82EE'
     LIGHTPINK   = 'FFB6C2'
     HOTPINK     = 'FE69B4'
+
+HighLightColorBoard = [
+    ColorPalette.YELLOW,
+    ColorPalette.AQUA,
+    ColorPalette.BISQUE,
+    ColorPalette.ROYBLUE,
+    ColorPalette.VIOLET,
+    ColorPalette.LIGHTPINK,
+    ColorPalette.GREEN,
+    ColorPalette.RED,
+    ColorPalette.BLUE,
+    ColorPalette.GREY,
+    ColorPalette.HOTPINK,
+    ColorPalette.DARK_YELLOW,
+    ColorPalette.DARK_GREEN,
+    ColorPalette.DARK_RED,
+    ColorPalette.DARK_BLUE,
+    ColorPalette.DARK_GREY]
 
 def apply_style(cell, style):
     if not style:

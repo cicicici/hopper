@@ -12,7 +12,7 @@ from openpyxl import load_workbook
 from ..util.opt import Opt, opt_to_dict, opt_to_file
 from ..debug import log, dump
 
-from .sheet import load_sheet
+from .sheet import load_sheet, clear_sheet_cache
 
 
 def load_book(filename, title_sheet_map, title_field_map):
@@ -30,4 +30,8 @@ def load_book(filename, title_sheet_map, title_field_map):
         sheets[name] = load_sheet(wb, sheetname, title_field_map)
 
     return Opt(wb=wb, sheets=sheets)
+
+def clear_book_cache(book):
+    for name, sheet in book.sheets.items():
+        clear_sheet_cache(sheet)
 

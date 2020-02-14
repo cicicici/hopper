@@ -59,14 +59,25 @@ def append_sheet(sheet, rec, pre_style=True, post_style=True):
     for f in fields:
         if f.name in rec:
             val = rec[f.name].value
-            if type(val) is datetime.datetime:
-                val = "{}/{}/{}".format(val.month, val.day, val.year)
             c = sheet.ws.cell(row=sheet.row, column=f.column)
-            c.value = val
-
+            # Load template style, including data type and format
             if pre_style:
                 c._style = copy(sheet.ws.cell(row=sheet.row+sheet.cache.space, column=f.column)._style)
 
+            #if type(val) is datetime.datetime:
+                #val = "{}/{}/{}".format(val.month, val.day, val.year)
+            if f.dtype == 'date':
+                if val and isinstance(val, str):
+                    val = datetime.datetime.strptime(val, '%m/%d/%Y')
+                c.number_format = f.dformat
+            elif f.dtype == 'num':
+                if val is not None:
+                    val = float(val)
+                c.number_format = f.dformat
+
+            c.value = val
+
+            # Apply additional style
             if post_style:
                 apply_style(c, rec[f.name].style)
 

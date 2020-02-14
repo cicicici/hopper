@@ -50,7 +50,7 @@ def load_sheet(wb, sheetname, title_field_map, skip_empty=True, cache_size=100):
 
     return Opt(wb=wb, ws=ws, name=sheetname, fields=fields, fields_map=fields_map, records=records, row=row_cur, cache=cache)
 
-def append_sheet(sheet, rec, pre_style=True, post_style=True):
+def append_sheet(sheet, rec, pre_style=True, post_style=True, data_format=True):
     if sheet.cache.space == 0:
         sheet.ws.insert_rows(sheet.row, sheet.cache.size)
         sheet.cache.space = sheet.cache.size
@@ -64,16 +64,20 @@ def append_sheet(sheet, rec, pre_style=True, post_style=True):
             if pre_style:
                 c._style = copy(sheet.ws.cell(row=sheet.row+sheet.cache.space, column=f.column)._style)
 
-            #if type(val) is datetime.datetime:
-                #val = "{}/{}/{}".format(val.month, val.day, val.year)
-            if f.dtype == 'date':
-                if val and isinstance(val, str):
-                    val = datetime.datetime.strptime(val, '%m/%d/%Y')
-                c.number_format = f.dformat
-            elif f.dtype == 'num':
-                if val is not None:
-                    val = float(val)
-                c.number_format = f.dformat
+            if data_format:
+                #if type(val) is datetime.datetime:
+                    #val = "{}/{}/{}".format(val.month, val.day, val.year)
+                if f.dtype == 'date':
+                    if val and isinstance(val, str):
+                        val = datetime.datetime.strptime(val, '%m/%d/%Y')
+                    c.number_format = f.dformat
+                elif f.dtype == 'num':
+                    if val is not None:
+                        val = float(val)
+                    c.number_format = f.dformat
+                elif f.dtype == 'str':
+                    if val is not None:
+                        val = "{}".format(val)
 
             c.value = val
 
@@ -84,20 +88,20 @@ def append_sheet(sheet, rec, pre_style=True, post_style=True):
     sheet.row += 1
     sheet.cache.space -= 1
 
-def append_found(sheet, sheet_save, found, mark_process=True, pre_style=True, post_style=True):
+def append_found(sheet, sheet_save, found, mark_process=True, pre_style=True, post_style=True, data_format=True):
     for f in found:
         r = sheet.records[f]
         if r.processed:
             continue
-        append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style)
+        append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style, data_format=data_format)
         if mark_process:
             r.processed = True
 
-def append_not_processed(sheet, sheet_save, first="*** INVALID ***", mark_process=True, pre_style=True, post_style=True):
-    append_sheet(sheet_save, make_record(sheet_save.fields, 0, first=first), pre_style=pre_style, post_style=post_style)
+def append_not_processed(sheet, sheet_save, first="*** INVALID ***", mark_process=True, pre_style=True, post_style=True, data_format=True):
+    append_sheet(sheet_save, make_record(sheet_save.fields, 0, first=first), pre_style=pre_style, post_style=post_style, data_format=data_format)
     for r in sheet.records:
         if not r.processed:
-            append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style)
+            append_sheet(sheet_save, r, pre_style=pre_style, post_style=post_style, data_format=data_format)
             if mark_process:
                 r.processed = True
 

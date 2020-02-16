@@ -5,6 +5,14 @@ from __future__ import print_function
 import os
 import sys
 import random
+import time
+
+
+def timestamp_us(start=0):
+    return int(round(time.time() * 1e6) - start)
+
+def timestamp_ms(start=0):
+    return int(round(time.time() * 1e3) - start)
 
 def token_in_list(line_list, token):
     in_list = False

@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import six
 import collections
 import json
 import base64
@@ -10,7 +9,7 @@ import base64
 
 def opt_to_dict(opt):
     d = {}
-    for k, v in six.iteritems(opt):
+    for k, v in opt.items():
         if type(v) is Opt:
             d[k] = opt_to_dict(v)
         elif type(v) is bytes:
@@ -75,7 +74,7 @@ class Opt(collections.MutableMapping):
 
     def __add__(self, other):
         res = Opt(self.__dict__)
-        for k, v in six.iteritems(other):
+        for k, v in other.items():
             #if k not in res.__dict__ or res.__dict__[k] is None:
             if k not in res.__dict__:
                 res.__dict__[k] = v
@@ -83,7 +82,7 @@ class Opt(collections.MutableMapping):
 
     def __mul__(self, other):
         res = Opt(self.__dict__)
-        for k, v in six.iteritems(other):
+        for k, v in other.items():
             res.__dict__[k] = v
         return res
 
@@ -91,13 +90,11 @@ class Opt(collections.MutableMapping):
         return self.__dict__ == other.__dict__
 
     # in-place add/mul instead of return a new one like ops above
-    def insert(self, key, value, overwrite=False):
-        if key is None:
-            return False
-        if overwrite or (key not in self.__dict__):
+    def set(self, key, value, overwrite=False):
+        if key is not None and (overwrite or (key not in self.__dict__)):
             self.__dict__[key] = value
-            return True
-        return False
+            return self
+        return None
 
     # counter functions
     def inc(self, key, delta=1):

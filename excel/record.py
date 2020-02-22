@@ -7,7 +7,8 @@ import sys
 
 from functools import cmp_to_key
 
-from ..util.opt import Opt, opt_to_dict, opt_to_file
+from ..util.opt import Opt
+
 
 def make_field(name, column, title, mapped, dtype, dformat):
     return Opt(name=name, column=column, title=title, mapped=mapped, dtype=dtype, dformat=dformat)

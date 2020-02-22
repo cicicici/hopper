@@ -9,7 +9,7 @@ import datetime
 from copy import copy, deepcopy
 from openpyxl import load_workbook
 
-from ..util.opt import Opt, opt_to_dict, opt_to_file
+from ..util.opt import Opt
 from ..debug import log, dump
 
 from .sheet import load_sheet, clear_sheet_cache

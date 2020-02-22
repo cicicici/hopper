@@ -7,7 +7,7 @@ import sys
 import datetime
 from copy import copy, deepcopy
 
-from ..util.opt import Opt, opt_to_dict, opt_to_file
+from ..util.opt import Opt
 from ..debug import log, dump
 
 from .record import make_record, parse_fields

@@ -23,6 +23,7 @@ def make_record(fields, row, first=None):
     rec.processed = False
     rec.first = None
     rec.empty = True
+    rec.prop = Opt()
 
     for f in fields:
         rec[f.name] = make_cell(f.name, None, f)

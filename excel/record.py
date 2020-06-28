@@ -79,6 +79,11 @@ def parse_fields(sheet, title_field_map, title_row=1):
             mapped = True
             dtype = title_field_map[c.value]['type']
             dformat = title_field_map[c.value]['format']
+        elif c.value and c.value.startswith('_'):
+            name = c.value
+            mapped = False
+            dtype = None
+            dformat = None
         else:
             name = "_{}".format(i)
             mapped = False

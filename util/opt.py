@@ -96,6 +96,14 @@ class Opt(collections.MutableMapping):
             return self
         return None
 
+    # prop functions
+    def prop(self, key, value):
+        if key is None:
+            return None
+        if key not in self.__dict__:
+            self.__dict__[key] = value
+        return self.__dict__[key]
+
     # counter functions
     def inc(self, key, delta=1):
         if key is None:

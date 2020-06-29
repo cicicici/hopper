@@ -10,8 +10,8 @@ from functools import cmp_to_key
 from ..util.opt import Opt
 
 
-def make_field(name, column, title, mapped, dtype, dformat):
-    return Opt(name=name, column=column, title=title, mapped=mapped, dtype=dtype, dformat=dformat)
+def make_field(name, column, title, mapped, dtype, dformat, py_fmt):
+    return Opt(name=name, column=column, title=title, mapped=mapped, dtype=dtype, dformat=dformat, py_fmt=py_fmt)
 
 def make_cell(name, value, field, style=Opt()):
     return Opt(name=name, value=value, field=field, style=style, c_style=None)
@@ -79,18 +79,21 @@ def parse_fields(sheet, title_field_map, title_row=1):
             mapped = True
             dtype = title_field_map[c.value]['type']
             dformat = title_field_map[c.value]['format']
+            py_fmt = title_field_map[c.value]['py_fmt']
         elif c.value and c.value.startswith('_'):
             name = c.value
             mapped = False
             dtype = None
             dformat = None
+            py_fmt = None
         else:
             name = "_{}".format(i)
             mapped = False
             dtype = None
             dformat = None
+            py_fmt = None
 
-        field = make_field(name, i, c.value, mapped, dtype, dformat)
+        field = make_field(name, i, c.value, mapped, dtype, dformat, py_fmt)
         fields.append(field)
         fields_map[name] = field
     #dump.print_pp(cnt.to_dict())

@@ -69,7 +69,8 @@ def append_sheet(sheet, rec, pre_style=True, post_style=True, data_format=True):
                     #val = "{}/{}/{}".format(val.month, val.day, val.year)
                 if f.dtype == 'date':
                     if val and isinstance(val, str):
-                        val = datetime.datetime.strptime(val, '%m/%d/%Y')
+                        #val = datetime.datetime.strptime(val, '%m/%d/%Y')
+                        val = datetime.datetime.strptime(val, f.py_fmt)
                     c.number_format = f.dformat
                 elif f.dtype == 'num':
                     if val is not None:

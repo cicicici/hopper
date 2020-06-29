@@ -46,6 +46,12 @@ def copy_record(r1, r2, fields, value=True, style=True, require_mapped=True):
             if style:
                 r2[f.name].style = r1[f.name].style
 
+def extend_record(r, field, value=None):
+    r[field.name] = make_cell(field.name, value, field)
+    if r.first is None:
+        r.first = r[field.name]
+    return r
+
 def combine_record(r1, r2, fields, row=0, require_mapped=True):
     rec = make_record(fields, row)
 

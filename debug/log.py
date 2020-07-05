@@ -98,29 +98,43 @@ def _log_prefix(marker="D", frameskip=0):
 
     return s
 
+def trace_on(chn):
+    return DV(chn, DL.TRACE)
+
 def trace(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.TRACE):
         _logger.debug(_log_prefix(marker="T", frameskip=frameskip) + msg, *args, **kwargs)
+
+def debug_on(chn):
+    return DV(chn, DL.DEBUG)
 
 def debug(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.DEBUG):
         _logger.debug(_log_prefix(marker="D", frameskip=frameskip) + msg, *args, **kwargs)
 
+def info_on(chn):
+    return DV(chn, DL.INFO)
 
 def info(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.INFO):
         _logger.info(_log_prefix(marker="I", frameskip=frameskip) + msg, *args, **kwargs)
 
+def warn_on(chn):
+    return DV(chn, DL.WARNING)
 
 def warn(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.WARNING):
         _logger.warning(_log_prefix(marker="W", frameskip=frameskip) + msg, *args, **kwargs)
 
+def error_on(chn):
+    return DV(chn, DL.ERROR)
 
 def error(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.ERROR):
         _logger.error(_log_prefix(marker="E", frameskip=frameskip) + msg, *args, **kwargs)
 
+def critical_on(chn):
+    return DV(chn, DL.CRITICAL)
 
 def critical(chn, msg, *args, frameskip=0, **kwargs):
     if DV(chn, DL.CRITICAL):

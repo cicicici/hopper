@@ -20,7 +20,9 @@ def load_sheet(wb, sheetname, title_field_map, skip_empty=True, cache_size=100):
     ws = wb[sheetname]
 
     fields, fields_map = parse_fields(ws, title_field_map)
-    dump.print_pp(fields)
+    log.trace(log.DC.STD, "== Loading [{}] ...".format(sheetname))
+    if log.trace_on(log.DC.STD):
+        dump.print_pp(fields)
 
     records = []
 

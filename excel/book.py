@@ -17,9 +17,9 @@ from .sheet import load_sheet, clear_sheet_cache
 
 def load_book(filename, title_sheet_map, title_field_map):
     wb = load_workbook(filename)
-    log.trace(log.DC.STD, "Book: {}, sheets {}".format(filename, wb.sheetnames))
 
     sheets = Opt()
+    names = []
 
     for sheetname in wb.sheetnames:
         if sheetname in title_sheet_map:
@@ -28,6 +28,9 @@ def load_book(filename, title_sheet_map, title_field_map):
             name = sheetname
 
         sheets[name] = load_sheet(wb, sheetname, title_field_map)
+        names.append({sheetname: name})
+
+    log.trace(log.DC.STD, "Book: {}, sheets {}".format(filename, names))
 
     return Opt(wb=wb, sheets=sheets)
 

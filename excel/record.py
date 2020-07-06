@@ -159,3 +159,19 @@ def sort_records(records, fields=[]):
         return 0
     records.sort(key=cmp_to_key(record_cmp))
 
+def record_key(r, fields=[]):
+    key = ''
+    for f in fields:
+        key = '{};{}'.format(key, r[f].value)
+    return key
+
+def index_records(records, fields=[]):
+
+    indices = Opt()
+
+    for i, r in enumerate(records):
+        key = record_key(r, fields)
+        indices.bucket(key, r)
+
+    return indices
+

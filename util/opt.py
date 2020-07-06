@@ -104,6 +104,13 @@ class Opt(collections.MutableMapping):
             self.__dict__[key] = value
         return self.__dict__[key]
 
+    def bucket(self, key, value):
+        if key is None:
+            return
+        if key not in self.__dict__:
+            self.__dict__[key] = []
+        self.__dict__[key].append(value)
+
     # counter functions
     def inc(self, key, delta=1):
         if key is None:

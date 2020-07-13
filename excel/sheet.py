@@ -59,12 +59,14 @@ def append_sheet(sheet, rec, pre_style=True, post_style=True, data_format=True):
 
     fields = sheet.fields
     for f in fields:
+        c = sheet.ws.cell(row=sheet.row, column=f.column)
+
+        # Load template style, including data type and format
+        if pre_style:
+            c._style = copy(sheet.ws.cell(row=sheet.row+sheet.cache.space, column=f.column)._style)
+
         if f.name in rec:
             val = rec[f.name].value
-            c = sheet.ws.cell(row=sheet.row, column=f.column)
-            # Load template style, including data type and format
-            if pre_style:
-                c._style = copy(sheet.ws.cell(row=sheet.row+sheet.cache.space, column=f.column)._style)
 
             if data_format:
                 #if type(val) is datetime.datetime:

@@ -59,11 +59,11 @@ def combine_record(r1, r2, fields, row=0, require_mapped=True):
         if require_mapped and not f.mapped:
             continue
 
-        if f.name in r1:
+        if r1 and f.name in r1:
             rec[f.name].value = r1[f.name].value
             rec[f.name].style = r1[f.name].style
 
-        if f.name in r2:
+        if r2 and f.name in r2:
             rec[f.name].value = r2[f.name].value
             rec[f.name].style = r2[f.name].style
 

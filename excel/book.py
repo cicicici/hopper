@@ -10,12 +10,16 @@ from copy import copy, deepcopy
 from openpyxl import load_workbook
 
 from ..util.opt import Opt
+from ..util.fs import file_exist
 from ..debug import log, dump
 
 from .sheet import load_sheet, clear_sheet_cache
 
 
 def load_book(filename, title_sheet_map, title_field_map):
+    if not file_exist(filename):
+        return None
+
     wb = load_workbook(filename)
 
     sheets = Opt()
